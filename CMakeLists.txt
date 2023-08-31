@@ -22,10 +22,7 @@ include(CMakeDependentOption)
 
 option(BUILD_TRANSLATIONS "Build translations" ON)
 option(BUILD_SHARED_LIBS "Build dynamic library" ON)
-if(QTKEYCHAIN_STATIC)
-    set(BUILD_SHARED_LIBS OFF)
-    message(WARNING "QTKEYCHAIN_STATIC is deprecated. Use BUILD_SHARED_LIBS=OFF instead.")
-endif()
+
 CMAKE_DEPENDENT_OPTION(BUILD_TRANSLATIONS_AS_RESOURCES "Bundle translations with the library" OFF
                        "BUILD_TRANSLATIONS" OFF)
 
