@@ -2,8 +2,8 @@
 # This file is provided as is without any warranty.
 # It can break at anytime or be removed without notice.
 
-lessThan(QT_MAJOR_VERSION, 5) {
-    error("qtkeychain requires Qt 5 or later")
+lessThan(QT_MAJOR_VERSION, 6) {
+    error("qtkeychain requires Qt 6 or later")
 }
 
 QTKEYCHAIN_PWD = $$PWD

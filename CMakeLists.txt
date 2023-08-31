@@ -20,7 +20,6 @@ include(ECMSetupVersion)
 include(ECMGeneratePriFile)
 include(CMakeDependentOption)
 
-option(BUILD_WITH_QT6 "Build qtkeychain with Qt 6" OFF)
 option(BUILD_TEST_APPLICATION "Build test application" OFF)
 option(BUILD_TRANSLATIONS "Build translations" ON)
 option(BUILD_SHARED_LIBS "Build dynamic library" ON)
@@ -47,80 +46,33 @@ if (WIN32)
     endif()
 endif()
 
-if( NOT BUILD_WITH_QT6 )
-    find_package(Qt5 COMPONENTS Core REQUIRED)
-endif()
 
-if (Qt5Core_FOUND AND NOT BUILD_WITH_QT6)
-  set(QTKEYCHAIN_VERSION_INFIX 5)
+find_package(Qt6 COMPONENTS Core REQUIRED)
 
-  if(ANDROID)
-    if(Qt5Core_VERSION VERSION_LESS 5.7)
-        find_package(Qt5 COMPONENTS Core REQUIRED Private)
-        include_directories(${Qt5Core_PRIVATE_INCLUDE_DIRS})
-    endif()
-
-    find_package(Qt5 COMPONENTS AndroidExtras REQUIRED)
-    include_directories(${Qt5AndroidExtras_INCLUDE_DIRS})
-    set(QTANDROIDEXTRAS_LIBRARIES ${Qt5AndroidExtras_LIBRARIES})
-  endif()
-
-  if(UNIX AND NOT APPLE AND NOT ANDROID AND NOT HAIKU)
-    find_package(Qt5 COMPONENTS DBus REQUIRED)
-    include_directories(${Qt5DBus_INCLUDE_DIRS})
-    set(QTDBUS_LIBRARIES ${Qt5DBus_LIBRARIES})
-    macro(qt_add_dbus_interface)
-      qt5_add_dbus_interface(${ARGN})
-    endmacro()
-  endif()
-
-  if(BUILD_TRANSLATIONS)
-    find_package(Qt5 COMPONENTS LinguistTools REQUIRED)
-    macro(qt_add_translation)
-      qt5_add_translation(${ARGN})
-    endmacro(qt_add_translation)
-    macro(qt_create_translation)
-      qt5_create_translation(${ARGN})
-    endmacro(qt_create_translation)
-  endif()
-
-  macro(qt_wrap_cpp)
-    qt5_wrap_cpp(${ARGN})
-  endmacro()
-
-  set(QTCORE_LIBRARIES ${Qt5Core_LIBRARIES})
-  include_directories(${Qt5Core_INCLUDE_DIRS})
-else()
-  find_package(Qt6 COMPONENTS Core REQUIRED)
-  set(QTKEYCHAIN_VERSION_INFIX 6)
-
-
-  if(UNIX AND NOT APPLE AND NOT ANDROID AND NOT HAIKU)
+if(UNIX AND NOT APPLE AND NOT ANDROID AND NOT HAIKU)
     find_package(Qt6 COMPONENTS DBus REQUIRED)
     include_directories(${Qt6DBus_INCLUDE_DIRS})
     set(QTDBUS_LIBRARIES ${Qt6DBus_LIBRARIES})
     macro(qt_add_dbus_interface)
-      qt6_add_dbus_interface(${ARGN})
+    qt6_add_dbus_interface(${ARGN})
     endmacro()
-  endif()
-
-  if(BUILD_TRANSLATIONS)
-    find_package(Qt6 COMPONENTS LinguistTools REQUIRED)
-    macro(qt_add_translation)
-      qt6_add_translation(${ARGN})
-    endmacro(qt_add_translation)
-    macro(qt_create_translation)
-      qt6_create_translation(${ARGN})
-    endmacro(qt_create_translation)
-  endif()
-
-  macro(qt_wrap_cpp)
-    qt6_wrap_cpp(${ARGN})
-  endmacro()
-
-  set(QTCORE_LIBRARIES ${Qt6Core_LIBRARIES})
 endif()
 
+if(BUILD_TRANSLATIONS)
+    find_package(Qt6 COMPONENTS LinguistTools REQUIRED)
+    macro(qt_add_translation)
+    qt6_add_translation(${ARGN})
+    endmacro(qt_add_translation)
+    macro(qt_create_translation)
+    qt6_create_translation(${ARGN})
+    endmacro(qt_create_translation)
+endif()
+
+macro(qt_wrap_cpp)
+qt6_wrap_cpp(${ARGN})
+endmacro()
+
+set(QTCORE_LIBRARIES ${Qt6Core_LIBRARIES})
 
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
@@ -200,7 +152,7 @@ set(qtkeychain_TR_FILES
       translations/qtkeychain_zh.ts
 )
 
-set(QTKEYCHAIN_TARGET_NAME qt${QTKEYCHAIN_VERSION_INFIX}keychain)
+set(QTKEYCHAIN_TARGET_NAME qtkeychain)
 add_library(${QTKEYCHAIN_TARGET_NAME} ${qtkeychain_SOURCES} ${qtkeychain_MOC_OUTFILES} ${qtkeychain_QM_FILES})
 if(WIN32)
     set_target_properties( ${QTKEYCHAIN_TARGET_NAME} PROPERTIES DEBUG_POSTFIX "d" )
@@ -224,17 +176,9 @@ if ( BUILD_TRANSLATIONS )
         configure_file(${CMAKE_CURRENT_SOURCE_DIR}/translations/translations.qrc.in ${CMAKE_CURRENT_BINARY_DIR}/translations.qrc)
         target_sources(${QTKEYCHAIN_TARGET_NAME} PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/translations.qrc)
     else()
-        if(QTKEYCHAIN_VERSION_INFIX EQUAL 5 AND QT_TRANSLATIONS_DIR AND NOT QTKEYCHAIN_TRANSLATIONS_DIR)
-            # Back compatibility with pre-0.11 versions
-            message (WARNING "QT_TRANSLATIONS_DIR is deprecated, use QTKEYCHAIN_TRANSLATIONS_DIR instead")
-            set(QTKEYCHAIN_TRANSLATIONS_DIR ${QT_TRANSLATIONS_DIR}
-                CACHE PATH "The location of the QtKeychain translations" FORCE)
-        else()
-            set(QTKEYCHAIN_TRANSLATIONS_DIR
-                ${CMAKE_INSTALL_DATADIR}/qt${QTKEYCHAIN_VERSION_INFIX}keychain/translations
-                CACHE PATH "The location of the QtKeychain translations" )
-        endif()
-
+        set(QTKEYCHAIN_TRANSLATIONS_DIR
+            ${CMAKE_INSTALL_DATADIR}/qtkeychain/translations
+            CACHE PATH "The location of the QtKeychain translations" )
         install(FILES ${qtkeychain_QM_FILES} DESTINATION ${QTKEYCHAIN_TRANSLATIONS_DIR})
     endif()
 endif( BUILD_TRANSLATIONS )
@@ -263,11 +207,11 @@ if (NOT APPLE)
 endif()
 
 install(FILES keychain.h ${CMAKE_CURRENT_BINARY_DIR}/qkeychain_export.h
-        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/qt${QTKEYCHAIN_VERSION_INFIX}keychain/
+        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/qtkeychain/
 )
 
 install(TARGETS ${QTKEYCHAIN_TARGET_NAME}
-  EXPORT Qt${QTKEYCHAIN_VERSION_INFIX}KeychainLibraryDepends
+  EXPORT QtKeychainLibraryDepends
   RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
   LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
   ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
@@ -278,15 +222,8 @@ if(BUILD_TEST_APPLICATION)
 
     if(APPLE)
         list(APPEND testclient_LIBRARIES "-framework Cocoa")
-
-        if (BUILD_WITH_QT6)
-            find_package(Qt6 COMPONENTS Gui REQUIRED)
-            list(APPEND testclient_LIBRARIES Qt6::Gui)
-        else()
-            find_package(Qt5 COMPONENTS Gui REQUIRED)
-            list(APPEND testclient_LIBRARIES Qt5::Gui)
-        endif()
-
+        find_package(Qt6 COMPONENTS Gui REQUIRED)
+        list(APPEND testclient_LIBRARIES Qt6::Gui)
     endif()
     add_executable( testclient testclient.cpp )
     target_link_libraries( testclient ${testclient_LIBRARIES})
@@ -298,17 +235,17 @@ endif()
 ###
 
 configure_package_config_file("${CMAKE_CURRENT_SOURCE_DIR}/QtKeychainConfig.cmake.in"
-  "${CMAKE_CURRENT_BINARY_DIR}/Qt${QTKEYCHAIN_VERSION_INFIX}KeychainConfig.cmake"
-  INSTALL_DESTINATION Qt${QTKEYCHAIN_VERSION_INFIX}Keychain)
+  "${CMAKE_CURRENT_BINARY_DIR}/QtKeychainConfig.cmake"
+  INSTALL_DESTINATION QtKeychain)
 
 ecm_setup_version("${QTKEYCHAIN_VERSION}" VARIABLE_PREFIX SNORE
-  PACKAGE_VERSION_FILE "${CMAKE_CURRENT_BINARY_DIR}/Qt${QTKEYCHAIN_VERSION_INFIX}KeychainConfigVersion.cmake"
+  PACKAGE_VERSION_FILE "${CMAKE_CURRENT_BINARY_DIR}/QtKeychainConfigVersion.cmake"
   SOVERSION ${QTKEYCHAIN_VERSION})
 
 if(UNIX AND NOT APPLE AND NOT ANDROID AND NOT HAIKU)
     set(PRI_EXTRA_DEPS "dbus")
 endif()
-ecm_generate_pri_file(BASE_NAME Qt${QTKEYCHAIN_VERSION_INFIX}Keychain
+ecm_generate_pri_file(BASE_NAME QtKeychain
   LIB_NAME ${QTKEYCHAIN_TARGET_NAME}
   DEPS "core ${PRI_EXTRA_DEPS}"
   INCLUDE_INSTALL_DIR ${CMAKE_INSTALL_INCLUDEDIR}
@@ -317,12 +254,12 @@ ecm_generate_pri_file(BASE_NAME Qt${QTKEYCHAIN_VERSION_INFIX}Keychain
 install(FILES ${pri_filename} DESTINATION ${ECM_MKSPECS_INSTALL_DIR})
 
 
-install(EXPORT Qt${QTKEYCHAIN_VERSION_INFIX}KeychainLibraryDepends
-    DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/Qt${QTKEYCHAIN_VERSION_INFIX}Keychain"
+install(EXPORT QtKeychainLibraryDepends
+    DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/QtKeychain"
 )
 
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/Qt${QTKEYCHAIN_VERSION_INFIX}KeychainConfig.cmake
-              ${CMAKE_CURRENT_BINARY_DIR}/Qt${QTKEYCHAIN_VERSION_INFIX}KeychainConfigVersion.cmake
-        DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/Qt${QTKEYCHAIN_VERSION_INFIX}Keychain
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/QtKeychainConfig.cmake
+              ${CMAKE_CURRENT_BINARY_DIR}/QtKeychainConfigVersion.cmake
+        DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/QtKeychain
 )
 
