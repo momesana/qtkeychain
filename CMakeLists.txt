@@ -30,14 +30,6 @@ endif()
 CMAKE_DEPENDENT_OPTION(BUILD_TRANSLATIONS_AS_RESOURCES "Bundle translations with the library" OFF
                        "BUILD_TRANSLATIONS" OFF)
 
-if(CMAKE_SYSTEM_NAME STREQUAL Android)
-    set(ANDROID 1)
-endif()
-
-if(CMAKE_SYSTEM_NAME STREQUAL Haiku)
-    set(HAIKU 1)
-endif()
-
 if (WIN32)
     option(USE_CREDENTIAL_STORE "Build with windows CredentialStore support" ON)
 
@@ -49,7 +41,7 @@ endif()
 
 find_package(Qt6 COMPONENTS Core REQUIRED)
 
-if(UNIX AND NOT APPLE AND NOT ANDROID AND NOT HAIKU)
+if(UNIX AND NOT APPLE)
     find_package(Qt6 COMPONENTS DBus REQUIRED)
     include_directories(${Qt6DBus_INCLUDE_DIRS})
     set(QTDBUS_LIBRARIES ${Qt6DBus_LIBRARIES})
@@ -113,14 +105,7 @@ if(APPLE)
     list(APPEND qtkeychain_LIBRARIES "-framework Foundation" "-framework Security")
 endif()
 
-if(HAIKU)
-    list(APPEND qtkeychain_SOURCES keychain_haiku.cpp)
-
-    find_library(BE_LIBRARY be REQUIRED)
-    list(APPEND qtkeychain_LIBRARIES ${BE_LIBRARY})
-endif()
-
-if(UNIX AND NOT APPLE AND NOT ANDROID AND NOT HAIKU)
+if(UNIX AND NOT APPLE)
     option(LIBSECRET_SUPPORT "Build with libsecret support" ON)
 
     if(LIBSECRET_SUPPORT)
@@ -135,11 +120,6 @@ if(UNIX AND NOT APPLE AND NOT ANDROID AND NOT HAIKU)
     list(APPEND qtkeychain_SOURCES keychain_unix.cpp gnomekeyring.cpp libsecret.cpp plaintextstore.cpp)
     qt_add_dbus_interface(qtkeychain_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/org.kde.KWallet.xml kwallet_interface KWalletInterface)
     list(APPEND qtkeychain_LIBRARIES ${QTDBUS_LIBRARIES} )
-endif()
-
-if(ANDROID)
-    list(APPEND qtkeychain_SOURCES keychain_android.cpp androidkeystore.cpp plaintextstore.cpp)
-    list(APPEND qtkeychain_LIBRARIES_PRIVATE ${QTANDROIDEXTRAS_LIBRARIES} )
 endif()
 
 QT_WRAP_CPP(qtkeychain_MOC_OUTFILES keychain.h keychain_p.h gnomekeyring_p.h)
@@ -242,7 +222,7 @@ ecm_setup_version("${QTKEYCHAIN_VERSION}" VARIABLE_PREFIX SNORE
   PACKAGE_VERSION_FILE "${CMAKE_CURRENT_BINARY_DIR}/QtKeychainConfigVersion.cmake"
   SOVERSION ${QTKEYCHAIN_VERSION})
 
-if(UNIX AND NOT APPLE AND NOT ANDROID AND NOT HAIKU)
+if(UNIX AND NOT APPLE)
     set(PRI_EXTRA_DEPS "dbus")
 endif()
 ecm_generate_pri_file(BASE_NAME QtKeychain

@@ -22,7 +22,7 @@ HEADERS += \
 SOURCES += \
     $$QTKEYCHAIN_PWD/keychain.cpp
 
-unix:!android:!macx:!ios {
+unix::!macx:!ios {
     # Remove the following LIBSECRET_SUPPORT line
     # to build without libsecret support.
     DEFINES += LIBSECRET_SUPPORT
@@ -55,20 +55,6 @@ unix:!android:!macx:!ios {
         $$QTKEYCHAIN_PWD/plaintextstore.cpp \
         $$QTKEYCHAIN_PWD/gnomekeyring.cpp \
         $$QTKEYCHAIN_PWD/libsecret.cpp
-}
-
-android {
-    lessThan(QT_MAJOR_VERSION, 6) {
-        QT += androidextras
-    }
-
-    HEADERS += \
-        $$QTKEYCHAIN_PWD/androidkeystore_p.h \
-        $$QTKEYCHAIN_PWD/plaintextstore_p.h
-    SOURCES += \
-        $$QTKEYCHAIN_PWD/androidkeystore.cpp \
-        $$QTKEYCHAIN_PWD/keychain_android.cpp \
-        $$QTKEYCHAIN_PWD/plaintextstore.cpp
 }
 
 win32 {
