@@ -20,7 +20,6 @@ include(ECMSetupVersion)
 include(ECMGeneratePriFile)
 include(CMakeDependentOption)
 
-option(BUILD_TEST_APPLICATION "Build test application" OFF)
 option(BUILD_TRANSLATIONS "Build translations" ON)
 option(BUILD_SHARED_LIBS "Build dynamic library" ON)
 if(QTKEYCHAIN_STATIC)
@@ -196,19 +195,6 @@ install(TARGETS ${QTKEYCHAIN_TARGET_NAME}
   LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
   ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
 )
-
-if(BUILD_TEST_APPLICATION)
-    set( testclient_LIBRARIES ${QTKEYCHAIN_TARGET_NAME} )
-
-    if(APPLE)
-        list(APPEND testclient_LIBRARIES "-framework Cocoa")
-        find_package(Qt6 COMPONENTS Gui REQUIRED)
-        list(APPEND testclient_LIBRARIES Qt6::Gui)
-    endif()
-    add_executable( testclient testclient.cpp )
-    target_link_libraries( testclient ${testclient_LIBRARIES})
-endif()
-
 
 ###
 ### CMake config file
