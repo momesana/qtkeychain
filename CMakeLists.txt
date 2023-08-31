@@ -41,24 +41,11 @@ if(UNIX AND NOT APPLE)
     find_package(Qt6 COMPONENTS DBus REQUIRED)
     include_directories(${Qt6DBus_INCLUDE_DIRS})
     set(QTDBUS_LIBRARIES ${Qt6DBus_LIBRARIES})
-    macro(qt_add_dbus_interface)
-    qt6_add_dbus_interface(${ARGN})
-    endmacro()
 endif()
 
 if(BUILD_TRANSLATIONS)
     find_package(Qt6 COMPONENTS LinguistTools REQUIRED)
-    macro(qt_add_translation)
-    qt6_add_translation(${ARGN})
-    endmacro(qt_add_translation)
-    macro(qt_create_translation)
-    qt6_create_translation(${ARGN})
-    endmacro(qt_create_translation)
 endif()
-
-macro(qt_wrap_cpp)
-qt6_wrap_cpp(${ARGN})
-endmacro()
 
 set(QTCORE_LIBRARIES ${Qt6Core_LIBRARIES})
 
@@ -114,11 +101,11 @@ if(UNIX AND NOT APPLE)
 
     add_definitions(-DKEYCHAIN_DBUS=1)
     list(APPEND qtkeychain_SOURCES keychain_unix.cpp gnomekeyring.cpp libsecret.cpp plaintextstore.cpp)
-    qt_add_dbus_interface(qtkeychain_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/org.kde.KWallet.xml kwallet_interface KWalletInterface)
+    qt6_add_dbus_interface(qtkeychain_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/org.kde.KWallet.xml kwallet_interface KWalletInterface)
     list(APPEND qtkeychain_LIBRARIES ${QTDBUS_LIBRARIES} )
 endif()
 
-QT_WRAP_CPP(qtkeychain_MOC_OUTFILES keychain.h keychain_p.h gnomekeyring_p.h)
+qt6_wrap_cpp(qtkeychain_MOC_OUTFILES keychain.h keychain_p.h gnomekeyring_p.h)
 
 set(qtkeychain_TR_FILES
       translations/qtkeychain_de.ts
@@ -136,8 +123,8 @@ endif()
 
 file(GLOB qtkeychain_TR_SOURCES *.cpp *.h *.ui)
 if ( BUILD_TRANSLATIONS )
-    qt_create_translation(qtkeychain_MESSAGES ${qtkeychain_TR_SOURCES} ${qtkeychain_TR_FILES})
-    qt_add_translation(qtkeychain_QM_FILES ${qtkeychain_TR_FILES})
+    qt6_create_translation(qtkeychain_MESSAGES ${qtkeychain_TR_SOURCES} ${qtkeychain_TR_FILES})
+    qt6_add_translation(qtkeychain_QM_FILES ${qtkeychain_TR_FILES})
     add_custom_target(messages DEPENDS ${qtkeychain_MESSAGES})
     add_custom_target(translations DEPENDS ${qtkeychain_QM_FILES} messages)
     # https://github.com/frankosterfeld/qtkeychain/issues/185
