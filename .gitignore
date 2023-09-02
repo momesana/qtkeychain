@@ -76,6 +76,7 @@ CMakeCache.txt
 CMakeFiles
 CMakeScripts
 cmake_install.cmake
+CMakeLists.txt.user
 
 #Keychain temporary files
 Qt5KeychainBuildTreeSettings.cmake
