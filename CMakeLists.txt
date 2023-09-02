@@ -23,7 +23,7 @@ include(ECMGeneratePriFile)
 include(CMakeDependentOption)
 
 option(BUILD_TRANSLATIONS "Build translations" ON)
-option(BUILD_SHARED_LIBS "Build dynamic library" ON)
+option(BUILD_SHARED_LIBS "Build dynamic library" OFF)
 
 CMAKE_DEPENDENT_OPTION(BUILD_TRANSLATIONS_AS_RESOURCES "Bundle translations with the library" OFF
                        "BUILD_TRANSLATIONS" OFF)
