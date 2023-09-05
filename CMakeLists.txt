@@ -19,7 +19,6 @@ include(GNUInstallDirs)
 include(GenerateExportHeader)
 include(CMakePackageConfigHelpers)
 include(ECMSetupVersion)
-include(ECMGeneratePriFile)
 include(CMakeDependentOption)
 
 option(BUILD_TRANSLATIONS "Build translations" ON)
@@ -193,18 +192,6 @@ configure_package_config_file("${CMAKE_CURRENT_SOURCE_DIR}/QtKeychainConfig.cmak
 ecm_setup_version("${QTKEYCHAIN_VERSION}" VARIABLE_PREFIX SNORE
   PACKAGE_VERSION_FILE "${CMAKE_CURRENT_BINARY_DIR}/QtKeychainConfigVersion.cmake"
   SOVERSION ${QTKEYCHAIN_VERSION})
-
-if(UNIX AND NOT APPLE)
-    set(PRI_EXTRA_DEPS "dbus")
-endif()
-ecm_generate_pri_file(BASE_NAME QtKeychain
-  LIB_NAME ${QTKEYCHAIN_TARGET_NAME}
-  DEPS "core ${PRI_EXTRA_DEPS}"
-  INCLUDE_INSTALL_DIR ${CMAKE_INSTALL_INCLUDEDIR}
-  FILENAME_VAR pri_filename)
-
-install(FILES ${pri_filename} DESTINATION ${ECM_MKSPECS_INSTALL_DIR})
-
 
 install(EXPORT QtKeychainLibraryDepends
     DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/QtKeychain"
